@@ -1,20 +1,21 @@
 // import React, {createContext, ReactNode} from 'react';
-import {useState} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useEffect, useState} from 'react';
 import {Todo} from './types';
 
-type Todos = {
-  tasks: Todo[];
-  newTodoId: number;
-};
+// type Todos = {
+//   tasks: Todo[];
+//   newTodoId: number;
+// };
 
 // Change this to some model
-const todos: Todos = {
-  tasks: [
-    {id: 1, task: 'Buy milk', isCompleted: false},
-    {id: 2, task: 'Buy groceries', isCompleted: false},
-  ],
-  newTodoId: 3,
-};
+// const todos: Todos = {
+//   tasks: [
+//     {id: 1, task: 'Buy milk', isCompleted: false},
+//     {id: 2, task: 'Buy groceries', isCompleted: false},
+//   ],
+//   newTodoId: 3,
+// };
 
 type TodoActions = {
   tasks: Todo[];
@@ -25,34 +26,56 @@ type TodoActions = {
 };
 
 const useTodos = (): TodoActions => {
-  const [tasks, setTodos] = useState(todos.tasks);
-  const [newId, setNewId] = useState(3);
+  const [tasks, setTasks] = useState<Todo[]>([]);
+  const [newId, setNewId] = useState(0);
+  const saveTodos = () => {
+    AsyncStorage.setItem('tasks', JSON.stringify(tasks));
+    AsyncStorage.setItem('newId', JSON.stringify(newId));
+  };
+
+  const updateState = () => {
+    setTasks(tasks.slice());
+    setNewId(newId + 1);
+    saveTodos();
+  };
 
   const addTask = (task: string): void => {
     const newTodo: Todo = {id: newId, task, isCompleted: false};
     tasks.push(newTodo);
-
-    setTodos(tasks.slice());
-    setNewId(newId + 1);
+    updateState();
   };
 
   const markAsComplete = (taskId: number) => {
     const task = tasks.filter(({id}) => taskId === id)[0];
     task.isCompleted = true;
-    setTodos(tasks.slice());
+    updateState();
   };
 
   const markAsIncomplete = (taskId: number) => {
     const task = tasks.filter(({id}) => taskId === id)[0];
     task.isCompleted = false;
-    setTodos(tasks.slice());
+    updateState();
   };
 
   const deleteTodo = (taskId: number) => {
     const todoIndex = tasks.findIndex(({id}) => taskId === id);
     tasks.splice(todoIndex, 1);
-    setTodos(tasks.slice());
+    updateState();
   };
+
+  useEffect(() => {
+    Promise.all([AsyncStorage.getItem('todos'), AsyncStorage.getItem('newId')])
+      .then(([data, id]) => {
+        const nextTodoId = +id! || 0;
+        setNewId(nextTodoId);
+
+        return JSON.parse(data!);
+      })
+      .then(allTasks => {
+        const fetchedTasks = allTasks || [];
+        setTasks(fetchedTasks);
+      });
+  }, []);
 
   return {tasks, addTask, markAsComplete, markAsIncomplete, deleteTodo};
 };
