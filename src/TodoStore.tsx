@@ -33,8 +33,6 @@ const useTodos = (): TodoActions => {
   const [newId, setNewId] = useState(0);
 
   const saveTodos = () => {
-    console.log('saving new tasks ', tasks, newId);
-
     AsyncStorage.setItem(todoListKey, JSON.stringify(tasks));
     AsyncStorage.setItem(newIdKey, JSON.stringify(newId));
   };
@@ -77,7 +75,6 @@ const useTodos = (): TodoActions => {
       .then(([data, id]) => {
         const nextTodoId = +id! || 0;
         setNewId(nextTodoId);
-        console.log('fetched data=============', data, id);
         return JSON.parse(data!);
       })
       .then(allTasks => {
