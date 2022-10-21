@@ -25,12 +25,18 @@ type TodoActions = {
   deleteTodo: (taskId: number) => void;
 };
 
+const todoListKey: string = 'tasks';
+const newIdKey: string = 'newId';
+
 const useTodos = (): TodoActions => {
   const [tasks, setTasks] = useState<Todo[]>([]);
   const [newId, setNewId] = useState(0);
+
   const saveTodos = () => {
-    AsyncStorage.setItem('tasks', JSON.stringify(tasks));
-    AsyncStorage.setItem('newId', JSON.stringify(newId));
+    console.log('saving new tasks ', tasks, newId);
+
+    AsyncStorage.setItem(todoListKey, JSON.stringify(tasks));
+    AsyncStorage.setItem(newIdKey, JSON.stringify(newId));
   };
 
   const updateState = () => {
@@ -64,11 +70,14 @@ const useTodos = (): TodoActions => {
   };
 
   useEffect(() => {
-    Promise.all([AsyncStorage.getItem('todos'), AsyncStorage.getItem('newId')])
+    Promise.all([
+      AsyncStorage.getItem(todoListKey),
+      AsyncStorage.getItem(newIdKey),
+    ])
       .then(([data, id]) => {
         const nextTodoId = +id! || 0;
         setNewId(nextTodoId);
-
+        console.log('fetched data=============', data, id);
         return JSON.parse(data!);
       })
       .then(allTasks => {

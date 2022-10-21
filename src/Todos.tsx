@@ -9,7 +9,7 @@ const Todos = () => {
   const uncompleted = tasks.filter(({isCompleted}) => !isCompleted);
   const completed = tasks.filter(({isCompleted}) => isCompleted);
 
-  const renderItem = ({item}: {item: Todo}) => <TodoItem todo={item} />;
+  const renderItem = ({item}: {item: Todo}) => <TodoItem item={item} />;
 
   return (
     <View style={styles.todos}>

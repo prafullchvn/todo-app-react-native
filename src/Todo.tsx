@@ -29,22 +29,20 @@ const styles = StyleSheet.create({
   },
 });
 
-const TodoItem = ({todo}: {todo: Todo}) => {
+const TodoItem = ({item}: {item: Todo}) => {
   const {markAsComplete, markAsIncomplete, deleteTodo} =
     useContext(todoContext);
-
-  let onPressAction = () => markAsComplete(todo.id);
+  let onPressAction = () => markAsComplete(item.id);
   let taskStyle = {...styles.item};
-  if (todo.isCompleted) {
+  if (item.isCompleted) {
     taskStyle = {...taskStyle, ...styles.doneTask};
-    onPressAction = () => markAsIncomplete(todo.id);
+    onPressAction = () => markAsIncomplete(item.id);
   }
-
   return (
     <Pressable style={taskStyle} onPress={onPressAction}>
-      <Text style={styles.todoText}>{todo.task}</Text>
-      <Text style={styles.todoStatus}>{todo.isCompleted ? '✔️' : '⏳'}</Text>
-      <Button title="╳" onPress={() => deleteTodo(todo.id)} />
+      <Text style={styles.todoText}>{item.task}</Text>
+      <Text style={styles.todoStatus}>{item.isCompleted ? '✔️' : '⏳'}</Text>
+      <Button title="╳" onPress={() => deleteTodo(item.id)} />
     </Pressable>
   );
 };
